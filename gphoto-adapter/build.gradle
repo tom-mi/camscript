@@ -1,0 +1,29 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.anarres.gradle:gradle-jnaerator-plugin:1.0.1'
+        classpath 'com.nativelibs4java:jnaerator:0.12'
+    }
+}
+apply plugin: 'org.anarres.jnaerator'
+
+apply plugin: 'java'
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile 'com.nativelibs4java:jnaerator-runtime:0.12'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jnaerator {
+    libraryName 'gphoto2'
+    packageName 'de.rfnbrgr.camscript.jna.gphoto2'
+    headerFiles '/usr/include/gphoto2/gphoto2.h'
+    // runtimeMode "JNAerator"
+    // define "FOO=bar", "ANSWER=42"
+    // extraArgs "-v", "-foo", "-bar"
+}
