@@ -1,5 +1,3 @@
 rootProject.name = 'camscript'
 
 include 'core'
-include 'gphoto-adapter'
-
