@@ -51,7 +51,7 @@ class Gphoto2Connection implements Connection {
             return new FloatRange(field.rangeMin, field.rangeMax, field.rangeIncrement)
         }
     }
-    
+
     @Override
     void close() {
         connection.close()
