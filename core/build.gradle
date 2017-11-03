@@ -1,12 +1,21 @@
 apply plugin: 'antlr'
 apply plugin: 'groovy'
 
+repositories {
+    maven {
+        url 'http://dl.bintray.com/tom-mi/de.rfnbrgr'
+    }
+}
+
 dependencies {
     antlr "org.antlr:antlr4:4.5"
 
     compile 'org.codehaus.groovy:groovy-all:2.4.+'
     compile 'org.slf4j:slf4j-api:1.7.24'
-    testCompile "org.spockframework:spock-core:1.1-groovy-2.4"
+    compile 'de.rfnbrgr:grphoto2:1.0.1'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+    testRuntime 'net.bytebuddy:byte-buddy:1.6.4'
+    testRuntime 'org.objenesis:objenesis:1.2'
 }
 
 
