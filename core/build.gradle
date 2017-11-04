@@ -8,7 +8,8 @@ repositories {
 }
 
 dependencies {
-    antlr "org.antlr:antlr4:4.5"
+    antlr 'org.antlr:antlr4:4.5'
+    antlr 'com.yuvalshavit:antlr-denter:1.0'
 
     compile 'org.codehaus.groovy:groovy-all:2.4.+'
     compile 'org.slf4j:slf4j-api:1.7.24'
@@ -21,4 +22,8 @@ dependencies {
 
 compileGroovy {
     dependsOn generateGrammarSource
+}
+
+generateGrammarSource {
+    arguments += ['-visitor', '-long-messages', '-package', 'de.rfnbrgr.camscript.parser']
 }

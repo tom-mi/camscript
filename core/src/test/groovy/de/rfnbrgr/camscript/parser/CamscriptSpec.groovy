@@ -12,7 +12,7 @@ class CamscriptSpec extends Specification {
         setup:
         def parser = setupParserForInput(statement)
         when:
-        def tree = parser.script()
+        parser.script()
 
         then:
         parser.getNumberOfSyntaxErrors() == 0
@@ -27,11 +27,11 @@ class CamscriptSpec extends Specification {
     }
 
     @Unroll
-    def 'whole scripts are parsed'() {
+    def 'whole scripts are parsed: [#source]'() {
         setup:
         def parser = setupParserForInput(source)
         when:
-        def tree = parser.statement()
+        parser.statement()
 
         then:
         parser.getNumberOfSyntaxErrors() == 0
@@ -41,10 +41,13 @@ class CamscriptSpec extends Specification {
             say "Hello World"
         ''', '''\
             wait 5s
+        ''', '''\
+            repeat 5 times
+                say "Again and again"
         '''].collect { it.stripIndent() }
     }
 
-    private setupParserForInput(input) {
+    private static setupParserForInput(String input) {
         def inputStream = new ANTLRInputStream(input)
         def lexer = new CamscriptLexer(inputStream)
         def tokens = new CommonTokenStream(lexer)

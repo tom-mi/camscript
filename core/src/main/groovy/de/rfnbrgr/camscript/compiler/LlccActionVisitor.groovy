@@ -5,7 +5,9 @@ import de.rfnbrgr.camscript.llcc.SayAction
 import de.rfnbrgr.camscript.llcc.WaitAction
 import de.rfnbrgr.camscript.parser.CamscriptBaseVisitor
 import de.rfnbrgr.camscript.parser.CamscriptParser
+import groovy.util.logging.Slf4j
 
+@Slf4j
 class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
 
     @Override
@@ -35,6 +37,18 @@ class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
             case 's': return (duration as Integer) * 1000
             case 'min': return (duration as Integer) * 60_000
             default: throw new RuntimeException("Encountered unknown duration unit $unit")
+        }
+    }
+
+    @Override
+    List<LlccAction> visitRepeat(CamscriptParser.RepeatContext ctx) {
+        def count = ctx.INT().getText() as Integer
+        if (count > 0) {
+            (1..count).collectMany {
+                visitBlock(ctx.block())
+            }
+        } else {
+            []
         }
     }
 }
