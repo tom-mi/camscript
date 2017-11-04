@@ -2,6 +2,7 @@ package de.rfnbrgr.camscript.device.gphoto2
 
 import de.rfnbrgr.camscript.device.Connection
 import de.rfnbrgr.camscript.device.FloatRange
+import de.rfnbrgr.camscript.device.VariableContext
 import de.rfnbrgr.camscript.device.VariableType
 import de.rfnbrgr.grphoto2.CameraConnection
 import de.rfnbrgr.grphoto2.domain.*
@@ -86,6 +87,42 @@ class Gphoto2ConnectionSpec extends Specification {
         [RADIO_ENTRY]  | 'radio'  || VariableType.CHOICE      | '/path/to/radio'      | ['A', 'B', 'C'] | null
         [MENU_ENTRY]   | 'menu'   || VariableType.CHOICE      | '/path/to/menu'       | ['On', 'Off']   | null
         [RANGE_ENTRY]  | 'range'  || VariableType.FLOAT_RANGE | '/path/to/range'      | []              | new FloatRange(-6f, 6f, 3f)
+    }
+
+    def 'readCameraContext - problematic characters in names are replaced'() {
+        setup:
+        def mockConfig = [
+                entryWithPathAndName('/path/here', 'white späce == bad'),
+                entryWithPathAndName('/path/there', 'same'),
+                entryWithPathAndName('/path/there it is', 'same'),
+                entryWithPathAndName('/path/else=where', 'other'),
+                entryWithPathAndName('/path/else where', 'other'),
+                entryWithPathAndName('/path/else\twhere', 'other'),
+        ]
+
+        when:
+        def cameraContext = connection.readCameraContext()
+
+        then:
+        1 * connection.connection.readConfig() >> mockConfig
+        cameraContext.variables == [
+                'white_sp_ce____bad',
+                '/path/there',
+                '/path/there_it_is',
+                '/path/else_where',
+                '/path/else_where1',
+                '/path/else_where2',
+        ]
+        cameraContext.variables.each{ name ->
+            assert cameraContext.variableContext(name) instanceof VariableContext
+        }
+    }
+
+    private static entryWithPathAndName(String path, String name) {
+        new ConfigEntry(
+                new ConfigField(path, name, 'Text', ConfigFieldType.TEXT, [], false, null, null, null),
+                new StringValue('foo bar')
+        )
     }
 
 }

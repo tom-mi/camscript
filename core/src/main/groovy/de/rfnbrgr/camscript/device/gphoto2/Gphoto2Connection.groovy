@@ -1,10 +1,6 @@
 package de.rfnbrgr.camscript.device.gphoto2
 
-import de.rfnbrgr.camscript.device.CameraContext
-import de.rfnbrgr.camscript.device.Connection
-import de.rfnbrgr.camscript.device.FloatRange
-import de.rfnbrgr.camscript.device.VariableContext
-import de.rfnbrgr.camscript.device.VariableType
+import de.rfnbrgr.camscript.device.*
 import de.rfnbrgr.grphoto2.CameraConnection
 import de.rfnbrgr.grphoto2.domain.ConfigField
 import de.rfnbrgr.grphoto2.domain.ConfigFieldType
@@ -12,6 +8,8 @@ import de.rfnbrgr.grphoto2.domain.ConfigFieldType
 class Gphoto2Connection implements Connection {
 
     CameraConnection connection
+
+    static final INVALID_VARIABLE_CHARACTER = /[^\w_\-.\/]/
 
     @Override
     CameraContext readCameraContext() {
@@ -27,6 +25,8 @@ class Gphoto2Connection implements Connection {
 
         writableEntries.each { entry ->
             def name = entry.field.name in duplicates ? entry.field.path : entry.field.name
+            name = cleanseProblematicCharacters(name)
+            name = handleDuplicate(variableNames, name)
             variableNames << name
             def type = mapType(entry.field)
             def floatRange = mapFloatRange(entry.field)
@@ -35,6 +35,7 @@ class Gphoto2Connection implements Connection {
 
         new CameraContext(variables: variableNames, variableContextMap: variableContext)
     }
+
 
     private static mapType(ConfigField field) {
         switch (field.type) {
@@ -50,6 +51,20 @@ class Gphoto2Connection implements Connection {
         if (field.type == ConfigFieldType.RANGE) {
             return new FloatRange(field.rangeMin, field.rangeMax, field.rangeIncrement)
         }
+    }
+
+    private static cleanseProblematicCharacters(String name) {
+        name.replaceAll(INVALID_VARIABLE_CHARACTER, '_')
+    }
+
+    private static handleDuplicate(List<String> strings, String original) {
+        def s = original
+        def i = 0
+        while (s in strings) {
+            i++
+            s = original + i
+        }
+        return s
     }
 
     @Override
