@@ -1,5 +1,6 @@
 package de.rfnbrgr.camscript.compiler
 
+import de.rfnbrgr.camscript.llcc.CompileError
 import de.rfnbrgr.camscript.llcc.SayAction
 import de.rfnbrgr.camscript.llcc.SetConfigAction
 import de.rfnbrgr.camscript.llcc.WaitAction
@@ -11,11 +12,12 @@ class CamscriptCompilerSpec extends Specification {
     @Unroll
     def 'simple statement [#src]'() {
         when:
-        def sequence = new CamscriptCompiler().compile(src)
+        def llcc = new CamscriptCompiler().compile(src)
 
         then:
-        sequence.size() == 1
-        sequence.first() == expectedAction
+        llcc.actions.size() == 1
+        llcc.actions.first() == expectedAction
+        llcc.errors.size() == 0
 
         where:
         src                    | expectedAction
@@ -29,17 +31,17 @@ class CamscriptCompilerSpec extends Specification {
     @Unroll
     def 'multiline script [#src]'() {
         when:
-        def sequence = new CamscriptCompiler().compile(src)
+        def llcc = new CamscriptCompiler().compile(src)
 
         then:
-        sequence == expectedSequence
+        llcc.actions == expectedSequence
+        llcc.errors.size() == 0
 
         where:
         src            | expectedSequence
         REPEAT_SCRIPT  | [new SayAction(text: 'Again and again...')] * 5
         REPEAT_0_TIMES | []
     }
-
 
     final static REPEAT_SCRIPT = '''\
         repeat 5 times
@@ -49,4 +51,18 @@ class CamscriptCompilerSpec extends Specification {
         repeat 0 times
             say "Never again..."
         '''.stripIndent()
+
+    @Unroll
+    def 'compiler errors are reported [#src]'() {
+        when:
+        def llcc = new CamscriptCompiler().compile(src)
+
+        then:
+        llcc.errors == expectedErrors
+
+        where:
+        src        | expectedErrors
+        'wait 5\n' | [new CompileError(1, 5, "extraneous input '5' expecting {WS, DURATION}")]
+    }
+
 }

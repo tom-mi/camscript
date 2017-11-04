@@ -28,12 +28,14 @@ class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
 
     @Override
     List<LlccAction> visitWait_(CamscriptParser.Wait_Context ctx) {
+        if (ctx.DURATION().text == '<missing DURATION>') {
+            return []
+        }
         def durationMilliseconds = parseDuration(ctx.DURATION().text)
         [new WaitAction(durationMilliseconds: durationMilliseconds)]
     }
 
     private static int parseDuration(duration) {
-        println duration
         def match = (duration =~ /(\d+)(.+)/)
         if (!match.matches()) {
             throw new IllegalStateException("Cannot parse duration [$duration]")

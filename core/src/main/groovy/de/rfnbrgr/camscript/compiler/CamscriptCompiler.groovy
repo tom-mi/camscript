@@ -1,23 +1,41 @@
 package de.rfnbrgr.camscript.compiler
 
-import de.rfnbrgr.camscript.llcc.LlccAction
+import de.rfnbrgr.camscript.llcc.CompileError
+import de.rfnbrgr.camscript.llcc.Llcc
 import de.rfnbrgr.camscript.parser.CamscriptLexer
 import de.rfnbrgr.camscript.parser.CamscriptParser
 import org.antlr.v4.runtime.ANTLRInputStream
+import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.ParseTreeWalker
+import org.antlr.v4.runtime.RecognitionException
+import org.antlr.v4.runtime.Recognizer
+import org.antlr.v4.runtime.atn.ATNSimulator
 
 class CamscriptCompiler {
 
-    List<LlccAction> compile(String source) {
-        def tree = parseSource(source)
-        def actions = compileActions(tree)
-        return actions
+    List<CompileError> errors = []
+
+    static class ErrorListener extends BaseErrorListener {
+
+        List<CompileError> errors
+
+        @Override
+        void syntaxError(Recognizer<?, ? extends ATNSimulator> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+            super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
+            errors << new CompileError(line, charPositionInLine, msg)
+        }
+
     }
 
-    private static parseSource(String source) {
+    Llcc compile(String source) {
+        def tree = parseSource(source)
+        def actions = compileActions(tree)
+        return new Llcc(actions, errors, true)
+    }
+
+    private parseSource(String source) {
         def parser = createParser(source)
-        parser.addErrorListener(new ThrowingErrorListener())
+        parser.addErrorListener(new ErrorListener(errors: errors))
         def tree = parser.script()
 
         return tree
