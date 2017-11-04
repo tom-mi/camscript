@@ -35,7 +35,7 @@ wait_: 'wait' WS+ DURATION;
 setConfig: variableName WS+ '=' WS+ variableValue;
 
 variableName: IDENTIFIER;
-variableValue: SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING;
+variableValue: SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING | INT | FLOAT;
 
 
 repeat: 'repeat' WS+ INT WS+ 'times' INDENT block DEDENT;
@@ -62,6 +62,7 @@ WS      : (' ' | '\t') ;
 
 DURATION: INT ('s' | 'ms' | 'min');
 INT : [0-9]+;
+FLOAT : [0-9]+ '.' [0-9]*;
 IDENTIFIER: [A-Za-z_/] ([A-Za-z_/\-])*;
 
 

@@ -28,6 +28,8 @@ class CamscriptSpec extends Specification {
                 /shutterspeed = "10'"/ + '\n',
                 /shutterspeed = "10\""/ + '\n',
                 's = "7"',
+                's = 7',
+                'aperture = 5.6',
         ]
     }
 
