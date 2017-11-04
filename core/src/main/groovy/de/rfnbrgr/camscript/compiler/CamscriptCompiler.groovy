@@ -31,9 +31,7 @@ class CamscriptCompiler {
     }
 
     private static compileActions(CamscriptParser.ScriptContext tree) {
-        def walker = new ParseTreeWalker()
-        def listener = new ListeningCompiler()
-        walker.walk(listener, tree)
-        return listener.actions
+        def visitor = new LlccActionVisitor()
+        visitor.visitScript(tree)
     }
 }
