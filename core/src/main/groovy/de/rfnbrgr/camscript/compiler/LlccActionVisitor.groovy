@@ -1,5 +1,7 @@
 package de.rfnbrgr.camscript.compiler
 
+import de.rfnbrgr.camscript.device.CameraContext
+import de.rfnbrgr.camscript.llcc.CompileError
 import de.rfnbrgr.camscript.llcc.LlccAction
 import de.rfnbrgr.camscript.llcc.SayAction
 import de.rfnbrgr.camscript.llcc.SetConfigAction
@@ -7,9 +9,13 @@ import de.rfnbrgr.camscript.llcc.WaitAction
 import de.rfnbrgr.camscript.parser.CamscriptBaseVisitor
 import de.rfnbrgr.camscript.parser.CamscriptParser
 import groovy.util.logging.Slf4j
+import org.antlr.v4.runtime.ParserRuleContext
 
 @Slf4j
 class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
+
+    CameraContext cameraContext
+    List<CompileError> errors
 
     @Override
     protected List<LlccAction> aggregateResult(List<LlccAction> aggregate, List<LlccAction> nextResult) {
@@ -40,8 +46,8 @@ class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
         if (!match.matches()) {
             throw new IllegalStateException("Cannot parse duration [$duration]")
         }
-        def value = match[0][1]
-        def unit = match[0][2]
+        def value = match.group(1)
+        def unit = match.group(2)
         switch (unit) {
             case 'ms': return value as Integer
             case 's': return (value as Integer) * 1000
@@ -66,6 +72,33 @@ class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
     List<LlccAction> visitSetConfig(CamscriptParser.SetConfigContext ctx) {
         def name = ctx.variableName().text
         def value = ctx.variableValue().text
-        [new SetConfigAction(name, value)]
+        if (validateVariableName(name, ctx.variableName()) && validateVariableValue(name, value, ctx.variableValue())) {
+            [new SetConfigAction(name, value)]
+        } else {
+            []
+        }
+    }
+
+    private boolean validateVariableName(String name, CamscriptParser.VariableNameContext ctx) {
+        if (cameraContext != null) {
+            if (!(name in cameraContext.variables)) {
+                errors << errorFromContext(ctx, "Unknown variable [$name]")
+                return false
+            }
+        }
+        return true
+    }
+
+    private boolean validateVariableValue(String name, String value, CamscriptParser.VariableValueContext ctx) {
+        if (cameraContext != null) {
+            if (!cameraContext.variableContext(name).validate(value)) {
+                errors << errorFromContext(ctx, "Invalid value [$value] for variable [$name]")
+            }
+        }
+        return true
+    }
+
+    private static CompileError errorFromContext(ParserRuleContext ctx, String message) {
+        new CompileError(ctx.start.line, ctx.start.charPositionInLine, ctx.start.startIndex, ctx.stop.stopIndex, message)
     }
 }

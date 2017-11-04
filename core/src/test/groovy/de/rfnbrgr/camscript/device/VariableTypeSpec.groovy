@@ -10,7 +10,7 @@ class VariableTypeSpec extends Specification {
     @Unroll
     def 'validate #newValue for #type'() {
         setup:
-        def context = new VariableContext(type, 'foo', 'foo', choices, range)
+        def context = new VariableContext(type, 'foo', choices, range)
 
         expect:
         context.validate(newValue) == expectedResult

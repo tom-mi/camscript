@@ -1,5 +1,9 @@
 package de.rfnbrgr.camscript.compiler
 
+import de.rfnbrgr.camscript.device.CameraContext
+import de.rfnbrgr.camscript.device.FloatRange
+import de.rfnbrgr.camscript.device.VariableContext
+import de.rfnbrgr.camscript.device.VariableType
 import de.rfnbrgr.camscript.llcc.CompileError
 import de.rfnbrgr.camscript.llcc.SayAction
 import de.rfnbrgr.camscript.llcc.SetConfigAction
@@ -10,7 +14,7 @@ import spock.lang.Unroll
 class CamscriptCompilerSpec extends Specification {
 
     @Unroll
-    def 'simple statement [#src]'() {
+    def 'context-independent - simple statement [#src]'() {
         when:
         def llcc = new CamscriptCompiler().compile(src)
 
@@ -18,6 +22,16 @@ class CamscriptCompilerSpec extends Specification {
         llcc.actions.size() == 1
         llcc.actions.first() == expectedAction
         llcc.errors.size() == 0
+        !llcc.isExecutable
+
+        when:
+        def llccWithContext = new CamscriptCompiler(cameraContext: setupContext()).compile(src)
+
+        then:
+        llccWithContext.actions.size() == 1
+        llccWithContext.actions.first() == expectedAction
+        llccWithContext.errors.size() == 0
+        llccWithContext.isExecutable
 
         where:
         src                    | expectedAction
@@ -25,17 +39,25 @@ class CamscriptCompilerSpec extends Specification {
         'wait 5ms\n'           | new WaitAction(durationMilliseconds: 5)
         'wait 10s\n'           | new WaitAction(durationMilliseconds: 10_000)
         'wait 42min\n'         | new WaitAction(durationMilliseconds: 42 * 60 * 1000)
-        'aperture = "5.6"\n'   | new SetConfigAction('aperture', '5.6')
     }
 
     @Unroll
-    def 'multiline script [#src]'() {
+    def 'context-independent - multiline script [#src]'() {
         when:
         def llcc = new CamscriptCompiler().compile(src)
 
         then:
         llcc.actions == expectedSequence
         llcc.errors.size() == 0
+        !llcc.isExecutable
+
+        when:
+        def llccWithContext = new CamscriptCompiler(cameraContext: setupContext()).compile(src)
+
+        then:
+        llccWithContext.actions == expectedSequence
+        llccWithContext.errors.size() == 0
+        llccWithContext.isExecutable
 
         where:
         src            | expectedSequence
@@ -53,7 +75,7 @@ class CamscriptCompilerSpec extends Specification {
         '''.stripIndent()
 
     @Unroll
-    def 'compiler errors are reported [#src]'() {
+    def 'context-independent - compiler errors are reported [#src]'() {
         when:
         def llcc = new CamscriptCompiler().compile(src)
 
@@ -61,8 +83,68 @@ class CamscriptCompilerSpec extends Specification {
         llcc.errors == expectedErrors
 
         where:
-        src        | expectedErrors
-        'wait 5\n' | [new CompileError(1, 5, "extraneous input '5' expecting {WS, DURATION}")]
+        src         | expectedErrors
+        'wait 42\n' | [new CompileError(1, 5, 5, 6, "extraneous input '42' expecting {WS, DURATION}")]
     }
 
+    @Unroll
+    def 'without context - simple statement [#src]'() {
+        when:
+        def context = setupContext()
+        def llcc = new CamscriptCompiler().compile(src)
+
+        then:
+        llcc.actions.size() == 1
+        llcc.actions.first() == expectedAction
+        llcc.errors.size() == 0
+        !llcc.isExecutable
+
+        where:
+        src                  | expectedAction
+        'aperture = "5.6"\n' | new SetConfigAction('aperture', '5.6')
+    }
+
+    @Unroll
+    def 'with context - simple statement [#src]'() {
+        when:
+        def llcc = new CamscriptCompiler(cameraContext: setupContext()).compile(src)
+
+        then:
+        llcc.actions.size() == 1
+        llcc.actions.first() == expectedAction
+        llcc.errors.size() == 0
+        llcc.isExecutable
+
+        where:
+        src                  | expectedAction
+        'aperture = "5.6"\n' | new SetConfigAction('aperture', '5.6')
+        'correction = "3"'   | new SetConfigAction('correction', '3')
+    }
+
+    @Unroll
+    def 'with context - compiler errors are reported [#src]'() {
+        when:
+        def llcc = new CamscriptCompiler(cameraContext: setupContext()).compile(src)
+
+        then:
+        llcc.errors == expectedErrors
+        !llcc.isExecutable
+
+        where:
+        src                  | expectedErrors
+        'hole = "2"'         | [new CompileError(1, 0, 0, 3, 'Unknown variable [hole]')]
+        'aperture = "2"'     | [new CompileError(1, 11, 11, 13, 'Invalid value [2] for variable [aperture]')]
+        'correction = "2.5"' | [new CompileError(1, 13, 13, 17, 'Invalid value [2.5] for variable [correction]')]
+        'count = "fortytwo"' | [new CompileError(1, 8, 8, 17, 'Invalid value [fortytwo] for variable [count]')]
+    }
+
+    private static setupContext() {
+        def contextMap = [
+                aperture  : new VariableContext(VariableType.CHOICE, '/path/aperture', ['4', '4.5', '5', '5.6', '6.3', '7.1', '8'], null),
+                correction: new VariableContext(VariableType.FLOAT_RANGE, '/path/correction', [], new FloatRange(-3f, 3f, 1f)),
+                count     : new VariableContext(VariableType.INTEGER, '/path/count', [], null),
+        ]
+
+        new CameraContext(context: contextMap)
+    }
 }

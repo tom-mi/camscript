@@ -7,11 +7,14 @@ import groovy.transform.ToString
 @ToString(includePackage = false)
 class CameraContext {
 
-    List<String> variables
-    private Map<String, VariableContext> variableContextMap
+    private Map<String, VariableContext> context
 
     VariableContext variableContext(String variable) {
-        variableContextMap[variable]
+        context[variable]
+    }
+
+    List<String> getVariables() {
+        return context.keySet().sort()
     }
 
 }

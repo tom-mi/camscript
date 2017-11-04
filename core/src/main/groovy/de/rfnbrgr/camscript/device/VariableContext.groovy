@@ -24,7 +24,6 @@ class VariableContext {
 
     VariableType type
     String canonicalName
-    String currentValue
 
     List<String> choices
     FloatRange floatRange

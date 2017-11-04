@@ -60,9 +60,9 @@ class Gphoto2ConnectionSpec extends Specification {
         where:
         mockConfig                              || expectedVariables
         [TEXT_ENTRY]                            || ['text']
-        [TOGGLE_ENTRY, RADIO_ENTRY]             || ['toggle', 'radio']
+        [TOGGLE_ENTRY, RADIO_ENTRY]             || ['radio', 'toggle']
         [TEXT_ENTRY_RO]                         || []
-        [TEXT_ENTRY, TEXT_ENTRY_WITH_SAME_NAME] || ['/path/to/text', '/another/path/to/text']
+        [TEXT_ENTRY, TEXT_ENTRY_WITH_SAME_NAME] || ['/another/path/to/text', '/path/to/text']
     }
 
     @Unroll
@@ -78,7 +78,6 @@ class Gphoto2ConnectionSpec extends Specification {
         context.type == expectedType
         context.choices == expectedChoices
         context.floatRange == expectedFloatRange
-        context.currentValue == mockConfig.first().value as String
 
         where:
         mockConfig     | key      || expectedType             | expectedCanonicalName | expectedChoices | expectedFloatRange
@@ -107,13 +106,13 @@ class Gphoto2ConnectionSpec extends Specification {
         then:
         1 * connection.connection.readConfig() >> mockConfig
         cameraContext.variables == [
-                'white_sp_ce____bad',
-                '/path/there',
-                '/path/there_it_is',
                 '/path/else_where',
                 '/path/else_where1',
                 '/path/else_where2',
+                '/path/there',
+                '/path/there_it_is',
                 '_wait',
+                'white_sp_ce____bad',
         ]
         cameraContext.variables.each{ name ->
             assert cameraContext.variableContext(name) instanceof VariableContext

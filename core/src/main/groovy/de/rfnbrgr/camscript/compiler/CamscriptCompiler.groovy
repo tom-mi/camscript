@@ -1,5 +1,6 @@
 package de.rfnbrgr.camscript.compiler
 
+import de.rfnbrgr.camscript.device.CameraContext
 import de.rfnbrgr.camscript.llcc.CompileError
 import de.rfnbrgr.camscript.llcc.Llcc
 import de.rfnbrgr.camscript.parser.CamscriptLexer
@@ -9,11 +10,14 @@ import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
+import org.antlr.v4.runtime.Token
 import org.antlr.v4.runtime.atn.ATNSimulator
 
 class CamscriptCompiler {
 
-    List<CompileError> errors = []
+    CameraContext cameraContext
+
+    private List<CompileError> errors = []
 
     static class ErrorListener extends BaseErrorListener {
 
@@ -22,7 +26,8 @@ class CamscriptCompiler {
         @Override
         void syntaxError(Recognizer<?, ? extends ATNSimulator> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
             super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
-            errors << new CompileError(line, charPositionInLine, msg)
+            def token = (Token) offendingSymbol
+            errors << new CompileError(line, charPositionInLine, token.startIndex, token.stopIndex, msg)
         }
 
     }
@@ -30,7 +35,8 @@ class CamscriptCompiler {
     Llcc compile(String source) {
         def tree = parseSource(source)
         def actions = compileActions(tree)
-        return new Llcc(actions, errors, true)
+        def isExecutable = errors.isEmpty() && cameraContext != null
+        return new Llcc(actions, errors, isExecutable)
     }
 
     private parseSource(String source) {
@@ -48,8 +54,8 @@ class CamscriptCompiler {
         new CamscriptParser(tokens)
     }
 
-    private static compileActions(CamscriptParser.ScriptContext tree) {
-        def visitor = new LlccActionVisitor()
+    private compileActions(CamscriptParser.ScriptContext tree) {
+        def visitor = new LlccActionVisitor(cameraContext: cameraContext, errors: errors)
         visitor.visitScript(tree)
     }
 }

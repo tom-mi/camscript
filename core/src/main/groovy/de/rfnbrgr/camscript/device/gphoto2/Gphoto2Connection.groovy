@@ -29,10 +29,10 @@ class Gphoto2Connection implements Connection {
             variableNames << name
             def type = mapType(entry.field)
             def floatRange = mapFloatRange(entry.field)
-            variableContext[name] = new VariableContext(type, entry.field.path, entry.value as String, entry.field.choices, floatRange)
+            variableContext[name] = new VariableContext(type, entry.field.path, entry.field.choices, floatRange)
         }
 
-        new CameraContext(variables: variableNames, variableContextMap: variableContext)
+        new CameraContext(context: variableContext)
     }
 
 
