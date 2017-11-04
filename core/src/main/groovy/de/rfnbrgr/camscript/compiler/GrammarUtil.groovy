@@ -2,7 +2,13 @@ package de.rfnbrgr.camscript.compiler
 
 class GrammarUtil {
 
-    static final KEYWORDS = ['wait', 'say', 'repeat', 'times']
+    static final KEYWORDS = [
+            'capture',
+            'repeat',
+            'say',
+            'times',
+            'wait',
+    ]
     static final INVALID_VARIABLE_NAME_CHARACTER = /[^\w_\-\/]/
     static final INVALID_VARIABLE_START_CHARACTER = /[^A-Za-z_\/]/
 

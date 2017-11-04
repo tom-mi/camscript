@@ -25,8 +25,10 @@ block : statement+;
 
 statement : singleLineStatement | blockStatement;
 
-singleLineStatement : (say | wait_ | setConfig ) NL;
+singleLineStatement : ( capture | say | wait_ | setConfig ) NL;
 blockStatement : repeat;
+
+capture : 'capture';
 
 say : 'say' WS+ DOUBLE_QUOTED_STRING;
 

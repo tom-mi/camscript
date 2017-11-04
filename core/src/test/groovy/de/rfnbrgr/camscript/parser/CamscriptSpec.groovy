@@ -30,6 +30,7 @@ class CamscriptSpec extends Specification {
                 's = "7"',
                 's = 7',
                 'aperture = 5.6',
+                'capture',
         ]
     }
 

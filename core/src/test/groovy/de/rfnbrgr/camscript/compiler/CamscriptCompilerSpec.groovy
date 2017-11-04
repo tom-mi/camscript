@@ -4,6 +4,7 @@ import de.rfnbrgr.camscript.device.CameraContext
 import de.rfnbrgr.camscript.device.FloatRange
 import de.rfnbrgr.camscript.device.VariableContext
 import de.rfnbrgr.camscript.device.VariableType
+import de.rfnbrgr.camscript.llcc.CaptureAction
 import de.rfnbrgr.camscript.llcc.CompileError
 import de.rfnbrgr.camscript.llcc.SayAction
 import de.rfnbrgr.camscript.llcc.SetConfigAction
@@ -39,6 +40,7 @@ class CamscriptCompilerSpec extends Specification {
         'wait 5ms\n'           | new WaitAction(durationMilliseconds: 5)
         'wait 10s\n'           | new WaitAction(durationMilliseconds: 10_000)
         'wait 42min\n'         | new WaitAction(durationMilliseconds: 42 * 60 * 1000)
+        'capture'              | new CaptureAction()
     }
 
     @Unroll
@@ -90,7 +92,6 @@ class CamscriptCompilerSpec extends Specification {
     @Unroll
     def 'without context - simple statement [#src]'() {
         when:
-        def context = setupContext()
         def llcc = new CamscriptCompiler().compile(src)
 
         then:

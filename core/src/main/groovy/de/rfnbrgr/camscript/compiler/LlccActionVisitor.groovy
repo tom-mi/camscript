@@ -1,6 +1,7 @@
 package de.rfnbrgr.camscript.compiler
 
 import de.rfnbrgr.camscript.device.CameraContext
+import de.rfnbrgr.camscript.llcc.CaptureAction
 import de.rfnbrgr.camscript.llcc.CompileError
 import de.rfnbrgr.camscript.llcc.LlccAction
 import de.rfnbrgr.camscript.llcc.SayAction
@@ -77,6 +78,11 @@ class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
         } else {
             []
         }
+    }
+
+    @Override
+    List<LlccAction> visitCapture(CamscriptParser.CaptureContext ctx) {
+        [new CaptureAction()]
     }
 
     private boolean validateVariableName(String name, CamscriptParser.VariableNameContext ctx) {
