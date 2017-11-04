@@ -1,5 +1,6 @@
 package de.rfnbrgr.camscript.device.gphoto2
 
+import de.rfnbrgr.camscript.compiler.GrammarUtil
 import de.rfnbrgr.camscript.device.*
 import de.rfnbrgr.grphoto2.CameraConnection
 import de.rfnbrgr.grphoto2.domain.ConfigField
@@ -8,8 +9,6 @@ import de.rfnbrgr.grphoto2.domain.ConfigFieldType
 class Gphoto2Connection implements Connection {
 
     CameraConnection connection
-
-    static final INVALID_VARIABLE_CHARACTER = /[^\w_\-.\/]/
 
     @Override
     CameraContext readCameraContext() {
@@ -25,7 +24,7 @@ class Gphoto2Connection implements Connection {
 
         writableEntries.each { entry ->
             def name = entry.field.name in duplicates ? entry.field.path : entry.field.name
-            name = cleanseProblematicCharacters(name)
+            name = GrammarUtil.sanitizeVariableName(name)
             name = handleDuplicate(variableNames, name)
             variableNames << name
             def type = mapType(entry.field)
@@ -51,10 +50,6 @@ class Gphoto2Connection implements Connection {
         if (field.type == ConfigFieldType.RANGE) {
             return new FloatRange(field.rangeMin, field.rangeMax, field.rangeIncrement)
         }
-    }
-
-    private static cleanseProblematicCharacters(String name) {
-        name.replaceAll(INVALID_VARIABLE_CHARACTER, '_')
     }
 
     private static handleDuplicate(List<String> strings, String original) {

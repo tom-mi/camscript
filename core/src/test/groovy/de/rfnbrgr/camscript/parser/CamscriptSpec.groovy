@@ -23,6 +23,12 @@ class CamscriptSpec extends Specification {
                 'wait 42ms\n',
                 'wait 5s\n',
                 'wait 10min\n',
+                "f-number = 'f/7,1'\n",
+                'manualfocusdrive = "Near 3"\n',
+                /shutterspeed = "10'"/ + '\n',
+                /shutterspeed = "10\""/ + '\n',
+                's = "7"',
+                'wait = "7"',
         ]
     }
 

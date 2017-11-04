@@ -25,30 +25,44 @@ block : statement+;
 
 statement : singleLineStatement | blockStatement;
 
-singleLineStatement : (say | wait_) NL;
+singleLineStatement : (say | wait_ | setConfig ) NL;
 blockStatement : repeat;
 
 say : 'say' WS+ DOUBLE_QUOTED_STRING;
-wait_: 'wait' WS+ duration;
+
+wait_: 'wait' WS+ DURATION;
+
+setConfig: variableName WS+ '=' WS+ variableValue;
+
+variableName: IDENTIFIER;
+variableValue: SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING;
+
 
 repeat: 'repeat' WS+ INT WS+ 'times' INDENT block DEDENT;
 
-duration: INT DURATION_UNIT;
 
 NL: ('\r'? '\n' ' '*);
-
-DURATION_UNIT : UNIT_MS | UNIT_S | UNIT_MIN;
-SINGLE_QUOTED_STRING: '\'' (~['\r\n])* '\'';
-DOUBLE_QUOTED_STRING: '"' (~["\r\n] | '""')* '"';
+DOUBLE_QUOTED_STRING: '"' (~["\r\n] | '\\"')* '"'
+   {
+     String s = getText();
+     s = s.substring(1, s.length() - 1);
+     s = s.replace("\\\"", "\"");
+     setText(s);
+   };
+SINGLE_QUOTED_STRING: '\'' (~['\r\n] | '\\\'' )* '\''
+   {
+     String s = getText();
+     s = s.substring(1, s.length() - 1);
+     s = s.replace("\\'", "'");
+     setText(s);
+   };
 
 WS      : (' ' | '\t') ;
-COLON           : ':';
 
-INT            : DIGIT+;
 
-UNIT_MS  : 'ms';
-UNIT_S   : 's';
-UNIT_MIN : 'min';
+DURATION: INT ('s' | 'ms' | 'min');
+INT : [0-9]+;
+IDENTIFIER: [A-Za-z_/] ([A-Za-z_/\-])*;
 
-fragment DIGIT : [0-9];
+
 ERR_CHAR : .;

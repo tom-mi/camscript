@@ -98,6 +98,7 @@ class Gphoto2ConnectionSpec extends Specification {
                 entryWithPathAndName('/path/else=where', 'other'),
                 entryWithPathAndName('/path/else where', 'other'),
                 entryWithPathAndName('/path/else\twhere', 'other'),
+                entryWithPathAndName('/path/wait', 'wait'),
         ]
 
         when:
@@ -112,6 +113,7 @@ class Gphoto2ConnectionSpec extends Specification {
                 '/path/else_where',
                 '/path/else_where1',
                 '/path/else_where2',
+                '_wait',
         ]
         cameraContext.variables.each{ name ->
             assert cameraContext.variableContext(name) instanceof VariableContext
