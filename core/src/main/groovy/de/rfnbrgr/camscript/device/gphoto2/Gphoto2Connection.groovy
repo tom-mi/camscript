@@ -35,6 +35,15 @@ class Gphoto2Connection implements Connection {
         new CameraContext(context: variableContext)
     }
 
+    @Override
+    void setConfigValue(String name, String value) {
+
+    }
+
+    @Override
+    void capture() {
+
+    }
 
     private static mapType(ConfigField field) {
         switch (field.type) {
