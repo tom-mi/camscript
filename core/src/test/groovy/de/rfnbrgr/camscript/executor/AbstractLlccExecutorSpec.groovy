@@ -50,15 +50,15 @@ class AbstractLlccExecutorSpec extends Specification {
 
     def 'executes SetConfigAction'() {
         setup:
-        def name = 'aperture'
+        def canonicalName = '/path/to/aperture'
         def value = '5.6'
 
         when:
-        executor.execute(setupExecutableLlcc([SetConfigAction.of(name, value)]))
+        executor.execute(setupExecutableLlcc([SetConfigAction.of(canonicalName, value)]))
 
         then:
-        1 * mockConnection.updateConfig([new ConfigUpdate(name, value)])
-        executor.messages == [[action: 'set config', message: "$name = $value"]]
+        1 * mockConnection.updateConfig([new ConfigUpdate(canonicalName, value)])
+        executor.messages == [[action: 'set config', message: "$canonicalName = $value"]]
     }
 
     def 'executes CaptureAction'() {

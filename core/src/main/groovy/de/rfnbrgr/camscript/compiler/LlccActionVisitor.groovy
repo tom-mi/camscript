@@ -74,7 +74,8 @@ class LlccActionVisitor extends CamscriptBaseVisitor<List<LlccAction>> {
         def name = ctx.variableName().text
         def value = ctx.variableValue().text
         if (validateVariableName(name, ctx.variableName()) && validateVariableValue(name, value, ctx.variableValue())) {
-            [SetConfigAction.of(name, value)]
+            def canonicalName = cameraContext?.variableContext(name)?.canonicalName ?: name
+            [SetConfigAction.of(canonicalName, value)]
         } else {
             []
         }

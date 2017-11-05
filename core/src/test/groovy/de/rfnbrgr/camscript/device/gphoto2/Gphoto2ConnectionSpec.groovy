@@ -1,5 +1,6 @@
 package de.rfnbrgr.camscript.device.gphoto2
 
+import de.rfnbrgr.camscript.device.ConfigUpdate
 import de.rfnbrgr.camscript.device.Connection
 import de.rfnbrgr.camscript.device.FloatRange
 import de.rfnbrgr.camscript.device.VariableContext
@@ -114,7 +115,7 @@ class Gphoto2ConnectionSpec extends Specification {
                 '_wait',
                 'white_sp_ce____bad',
         ]
-        cameraContext.variables.each{ name ->
+        cameraContext.variables.each { name ->
             assert cameraContext.variableContext(name) instanceof VariableContext
         }
     }
@@ -124,6 +125,31 @@ class Gphoto2ConnectionSpec extends Specification {
                 new ConfigField(path, name, 'Text', ConfigFieldType.TEXT, [], false, null, null, null),
                 new StringValue('foo bar')
         )
+    }
+
+    def 'update config'() {
+        setup:
+        def gphotoUpdates = []
+
+        when:
+        def updates = [
+                new ConfigUpdate('/path/to/text', 'foobar'),
+                new ConfigUpdate('/path/to/radio', 'A'),
+        ]
+
+        connection.updateConfig(updates)
+
+        then:
+        1 * connection.connection.readConfig() >> [TEXT_ENTRY, RADIO_ENTRY]
+        1 * connection.connection.updateConfig(_) >> { args -> //noinspection GroovyAssignabilityCheck
+            gphotoUpdates = args[0]
+        }
+
+        gphotoUpdates.size() == 2
+        gphotoUpdates[0].field == TEXT_ENTRY.field
+        gphotoUpdates[1].field == RADIO_ENTRY.field
+        gphotoUpdates[0].value == 'foobar'
+        gphotoUpdates[1].value == 'A'
     }
 
 }

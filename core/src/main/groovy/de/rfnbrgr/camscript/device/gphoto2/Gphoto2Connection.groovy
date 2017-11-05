@@ -37,7 +37,12 @@ class Gphoto2Connection implements Connection {
 
     @Override
     void updateConfig(List<ConfigUpdate> updates) {
+        def currentConfig = connection.readConfig()
 
+        def gphotoUpdates = updates.collect { update ->
+            currentConfig.getByPath(update.canonicalName).entryForUpdate(update.newValue)
+        }
+        connection.updateConfig(gphotoUpdates)
     }
 
     @Override
