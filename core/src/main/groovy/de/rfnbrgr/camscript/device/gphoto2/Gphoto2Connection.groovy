@@ -36,7 +36,7 @@ class Gphoto2Connection implements Connection {
     }
 
     @Override
-    void setConfigValue(String name, String value) {
+    void updateConfig(List<ConfigUpdate> updates) {
 
     }
 

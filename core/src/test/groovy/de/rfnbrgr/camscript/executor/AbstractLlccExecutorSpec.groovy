@@ -1,5 +1,6 @@
 package de.rfnbrgr.camscript.executor
 
+import de.rfnbrgr.camscript.device.ConfigUpdate
 import de.rfnbrgr.camscript.device.Connection
 import de.rfnbrgr.camscript.llcc.*
 import spock.lang.Specification
@@ -53,10 +54,10 @@ class AbstractLlccExecutorSpec extends Specification {
         def value = '5.6'
 
         when:
-        executor.execute(setupExecutableLlcc([new SetConfigAction(name, value)]))
+        executor.execute(setupExecutableLlcc([SetConfigAction.of(name, value)]))
 
         then:
-        1 * mockConnection.setConfigValue(name, value)
+        1 * mockConnection.updateConfig([new ConfigUpdate(name, value)])
         executor.messages == [[action: 'set config', message: "$name = $value"]]
     }
 

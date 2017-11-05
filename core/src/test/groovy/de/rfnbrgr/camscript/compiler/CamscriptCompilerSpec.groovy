@@ -102,7 +102,7 @@ class CamscriptCompilerSpec extends Specification {
 
         where:
         src                  | expectedAction
-        'aperture = "5.6"\n' | new SetConfigAction('aperture', '5.6')
+        'aperture = "5.6"\n' | SetConfigAction.of('aperture', '5.6')
     }
 
     @Unroll
@@ -118,9 +118,9 @@ class CamscriptCompilerSpec extends Specification {
 
         where:
         src                  | expectedAction
-        'aperture = "5.6"\n' | new SetConfigAction('aperture', '5.6')
-        'aperture = 5.6\n'   | new SetConfigAction('aperture', '5.6')
-        'correction = "3"'   | new SetConfigAction('correction', '3')
+        'aperture = "5.6"\n' | SetConfigAction.of('aperture', '5.6')
+        'aperture = 5.6\n'   | SetConfigAction.of('aperture', '5.6')
+        'correction = "3"'   | SetConfigAction.of('correction', '3')
     }
 
     @Unroll

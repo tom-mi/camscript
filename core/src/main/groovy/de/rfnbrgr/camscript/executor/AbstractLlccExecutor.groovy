@@ -36,8 +36,10 @@ abstract class AbstractLlccExecutor implements LlccExecutor {
 
     @SuppressWarnings("GroovyUnusedDeclaration")
     protected executeAction(SetConfigAction action) {
-        handleMessage('set config', "$action.variableName = $action.newValue")
-        connection.setConfigValue(action.variableName, action.newValue)
+        action.updates.each { update ->
+            handleMessage('set config', "$update.variableName = $update.newValue")
+        }
+        connection.updateConfig(action.updates)
     }
 
     @SuppressWarnings("GroovyUnusedDeclaration")
