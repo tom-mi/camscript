@@ -1,0 +1,17 @@
+apply plugin: 'groovy'
+
+repositories {
+    maven {
+        url 'http://dl.bintray.com/tom-mi/de.rfnbrgr'
+    }
+}
+
+dependencies {
+    compile project(':core')
+
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile 'commons-cli:commons-cli:1.4'
+    compile 'org.fusesource.jansi:jansi:1.16'
+    compile 'org.slf4j:slf4j-api:1.7.24'
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
+}

@@ -50,6 +50,6 @@ class CameraManager implements Backend {
 
     @Override
     Connection connect(Camera camera) {
-        return null
+        backends[camera.backend].connect(camera)
     }
 }

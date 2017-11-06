@@ -17,7 +17,8 @@ class Gphoto2Backend implements Backend {
 
     @Override
     Connection connect(Camera camera) {
-        return null
+        def gphotoConnection = grphoto.connect(((Gphoto2Camera) camera).camera)
+        new Gphoto2Connection(connection: gphotoConnection)
     }
 
 }
