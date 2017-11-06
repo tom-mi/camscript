@@ -49,6 +49,11 @@ class CameraManager implements Backend {
     }
 
     @Override
+    Camera loadCamera(BackendName backend, String path, String name) {
+        backends[backend].loadCamera(backend, path, name)
+    }
+
+    @Override
     Connection connect(Camera camera) {
         backends[camera.backend].connect(camera)
     }

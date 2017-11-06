@@ -26,4 +26,9 @@ class Gphoto2Camera implements Camera {
     BackendName getBackend() {
         BackendName.GPHOTO
     }
+
+    @Override
+    String getPath() {
+        return camera.path
+    }
 }
