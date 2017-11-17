@@ -2,7 +2,7 @@ package de.rfnbrgr.camscript.device.gphoto2
 
 import de.rfnbrgr.camscript.device.CameraFinder
 import de.rfnbrgr.grphoto2.Grphoto2
-import de.rfnbrgr.grphoto2.util.NetworkCameraFinder
+import de.rfnbrgr.grphoto2.discovery.NetworkCameraFinder
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 

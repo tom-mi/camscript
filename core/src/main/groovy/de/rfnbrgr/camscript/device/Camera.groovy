@@ -4,5 +4,5 @@ interface Camera {
     String getName()
     String getDescription()
     BackendName getBackend()
-    String getPath()
+    Map<String, String> toMap()
 }

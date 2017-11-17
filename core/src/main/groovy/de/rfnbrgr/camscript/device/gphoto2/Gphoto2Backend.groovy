@@ -25,10 +25,15 @@ class Gphoto2Backend implements Backend {
     }
 
     @Override
-    Camera loadCamera(BackendName backend, String path, String name) {
+    Camera loadCamera(BackendName backend, Map<String, String> parameters) {
         if (backend != BackendName.GPHOTO) {
             throw new DeviceError("Cannot load camera with wrong backend $backend")
         }
-        new Gphoto2Camera(new DetectedCamera(name, path))
+        new Gphoto2Camera(new DetectedCamera(
+                name: parameters.name,
+                model: parameters.model,
+                path: parameters.path,
+                guid: parameters.guid,
+        ))
     }
 }

@@ -4,6 +4,6 @@ interface Backend {
 
     CameraFinder autodetect()
     Connection connect(Camera camera)
-    Camera loadCamera(BackendName backend, String path, String name)
+    Camera loadCamera(BackendName backend, Map<String, String> parameters)
 
 }

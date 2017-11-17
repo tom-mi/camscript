@@ -14,12 +14,12 @@ class Gphoto2Camera implements Camera {
 
     @Override
     String getName() {
-        return camera.model
+        return camera.name
     }
 
     @Override
     String getDescription() {
-        return "libgphoto2 - $camera.path"
+        return "libgphoto2 - $camera.model - $camera.path"
     }
 
     @Override
@@ -28,7 +28,11 @@ class Gphoto2Camera implements Camera {
     }
 
     @Override
-    String getPath() {
-        return camera.path
+    Map<String, String> toMap() {
+        [
+                name: camera.name,
+                path: camera.path,
+                guid: camera.guid,
+        ]
     }
 }
