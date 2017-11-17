@@ -12,4 +12,9 @@ class SetConfigAction implements  LlccAction {
     static SetConfigAction of(String canonicalName, String newValue) {
         new SetConfigAction([new ConfigUpdate(canonicalName, newValue)])
     }
+
+    @Override
+    String getName() {
+        return 'set config'
+    }
 }

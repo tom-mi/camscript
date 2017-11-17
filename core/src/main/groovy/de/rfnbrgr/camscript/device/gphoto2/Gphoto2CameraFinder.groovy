@@ -25,6 +25,7 @@ class Gphoto2CameraFinder implements CameraFinder {
         networkCameraFinder.onDetect { camera ->
             callbacks.each { it(new Gphoto2Camera(camera)) }
         }
+        networkCameraFinder.start()
         Thread.start{
             grphoto.usbAutodetect().each { camera ->
                 callbacks.each { it(new Gphoto2Camera(camera)) }

@@ -1,12 +1,12 @@
 package de.rfnbrgr.camscript.device
 
+import de.rfnbrgr.camscript.llcc.LlccAction
+
 interface Connection {
 
     CameraContext readCameraContext()
 
-    void updateConfig(List<ConfigUpdate> updates)
-
-    void capture()
+    List<ExecutionOutput> execute(LlccAction llcc)
 
     void close()
 

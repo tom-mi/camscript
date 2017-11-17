@@ -5,6 +5,10 @@ import de.rfnbrgr.camscript.device.Connection
 import de.rfnbrgr.camscript.device.FloatRange
 import de.rfnbrgr.camscript.device.VariableContext
 import de.rfnbrgr.camscript.device.VariableType
+import de.rfnbrgr.camscript.llcc.CaptureAction
+import de.rfnbrgr.camscript.llcc.SayAction
+import de.rfnbrgr.camscript.llcc.SetConfigAction
+import de.rfnbrgr.camscript.llcc.WaitAction
 import de.rfnbrgr.grphoto2.CameraConnection
 import de.rfnbrgr.grphoto2.domain.*
 import spock.lang.Specification
@@ -127,17 +131,41 @@ class Gphoto2ConnectionSpec extends Specification {
         )
     }
 
+    def 'executes SayAction'() {
+        when:
+        def result = connection.execute(new SayAction('Hello'))
+
+        then:
+        result.first().action == 'say'
+        result.first().message == 'Hello'
+    }
+
+    def 'executes WaitAction'() {
+        setup:
+        def sleepDurations = []
+        def waitTimeMs = 4200
+        Gphoto2Connection.metaClass.static.sleep = { long duration -> sleepDurations << duration }
+
+        when:
+        def result = connection.execute(new WaitAction(waitTimeMs))
+
+        then:
+        sleepDurations == [waitTimeMs]
+        result.first().action == 'wait'
+        result.first().message == '4200ms'
+    }
+
     def 'update config'() {
         setup:
         def gphotoUpdates = []
 
-        when:
         def updates = [
                 new ConfigUpdate('/path/to/text', 'foobar'),
                 new ConfigUpdate('/path/to/radio', 'A'),
         ]
 
-        connection.updateConfig(updates)
+        when:
+        def result = connection.execute(new SetConfigAction(updates: updates))
 
         then:
         1 * connection.connection.readConfig() >> [TEXT_ENTRY, RADIO_ENTRY]
@@ -150,6 +178,23 @@ class Gphoto2ConnectionSpec extends Specification {
         gphotoUpdates[1].field == RADIO_ENTRY.field
         gphotoUpdates[0].value == 'foobar'
         gphotoUpdates[1].value == 'A'
+
+        result.size() == 2
+        result*.action == ['set config'] * 2
+        result*.message == ['/path/to/text = foobar', '/path/to/radio = A']
     }
+
+    def 'executes CaptureAction'() {
+        when:
+        def result = connection.execute(new CaptureAction())
+
+        then:
+        1 * connection.connection.capture_image() >> new CameraFile('/memory/card', 'IMG_001.jpg')
+
+        result.size() == 1
+        result.first().action == 'capture'
+        result.first().message == 'captured /memory/card/IMG_001.jpg'
+    }
+
 
 }

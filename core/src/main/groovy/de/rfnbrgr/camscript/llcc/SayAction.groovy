@@ -7,4 +7,9 @@ import groovy.transform.ToString
 @ToString(includePackage = false)
 class SayAction implements LlccAction {
     String text
+
+    @Override
+    String getName() {
+        return 'say'
+    }
 }

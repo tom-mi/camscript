@@ -7,4 +7,9 @@ import groovy.transform.ToString
 @ToString(includePackage = false)
 class WaitAction implements LlccAction {
     int durationMilliseconds
+
+    @Override
+    String getName() {
+        return 'wait'
+    }
 }
