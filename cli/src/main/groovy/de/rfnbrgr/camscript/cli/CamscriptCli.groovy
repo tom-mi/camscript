@@ -6,7 +6,6 @@ import de.rfnbrgr.camscript.llcc.Llcc
 import groovy.util.logging.Slf4j
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.AnsiConsole
-import org.slf4j.impl.SimpleLogger
 
 import static org.fusesource.jansi.Ansi.ansi
 
@@ -36,8 +35,6 @@ class CamscriptCli {
     void run(String[] args) {
         def options = parseArgs(args)
 
-        setLoglevel(options)
-
         if (options.cliMode in [CliMode.COMPILE, CliMode.COMPILE_AND_EXECUTE]) {
             def camera = autodetect()
             connection = connect(camera)
@@ -57,12 +54,6 @@ class CamscriptCli {
                 cliMode   : determineCliMode(options),
                 scriptPath: extractScript(options)
         ]
-    }
-
-    private setLoglevel(options) {
-        // TODO does not work??
-        System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, 'warn')
-        log.info('foo')
     }
 
     private exitWithUsage(String message) {
@@ -129,7 +120,7 @@ class CamscriptCli {
         chosenCamera
     }
 
-    private printPrompt() {
+    private static printPrompt() {
         print 'Choose a camera to connect to [1]: '
         System.out.flush()
     }
@@ -147,7 +138,7 @@ class CamscriptCli {
         new CamscriptCompiler(cameraContext: cameraContext).compile(source)
     }
 
-    private void printErrors(Llcc llcc) {
+    private static void printErrors(Llcc llcc) {
         if (llcc.errors.size() > 0) {
             println ansi().fgRed().a("Script contained ${llcc.errors.size()} errors:").reset()
             llcc.errors.each { error ->
