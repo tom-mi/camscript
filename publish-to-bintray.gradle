@@ -1,0 +1,50 @@
+import javax.naming.ConfigurationException
+
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+tasks.withType(Jar) {
+    baseName = "$rootProject.name-$project.name"
+}
+
+
+task sourceJar(type: Jar) {
+    from project.sourceSets.main.allJava, project.sourceSets.main.allGroovy
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId "$rootProject.name-$project.name"
+            artifact sourceJar {
+                classifier "sources"
+            }
+
+            from project.components.java
+        }
+    }
+    repositories {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}
+
+bintray {
+    if (!project.hasProperty('bintrayUser') || !project.hasProperty('bintrayApiKey')) {
+        throw new ConfigurationException('Please set bintrayUser and bintrayApiKey')
+    }
+    user = project.property('bintrayUser')
+    key = project.property('bintrayApiKey')
+    pkg {
+        repo = 'de.rfnbrgr'
+        name = "$rootProject.name-$project.name"
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/tom-mi/camscript.git'
+        version {
+            released = new Date()
+            name = project.version
+        }
+    }
+    publications = ['mavenJava']
+}
