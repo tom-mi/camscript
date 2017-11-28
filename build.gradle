@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath  'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
 
@@ -21,4 +21,9 @@ allprojects {
 
 subprojects {
     group 'de.rfnbrgr'
+    configurations.all {
+        resolutionStrategy {
+            failOnVersionConflict()
+        }
+    }
 }
